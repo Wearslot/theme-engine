@@ -1,5 +1,6 @@
 exports.editorMode = (pageContent) => {
     return `
+        <section data-type="template">
         <style type="text/css">
             .taojaa-editor-wrapper {
                 position:relative;
@@ -58,6 +59,7 @@ exports.editorMode = (pageContent) => {
                 })
             });
         </script>
+        </section>
     `;
 }
 
