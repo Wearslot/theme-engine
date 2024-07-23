@@ -39,14 +39,12 @@ exports.editorMode = (pageContent) => {
                 display:none !important;
             }
         </style>
-        <script type="text/javascript">
-            window.onload = () => {
-                document.querySelectorAll('a,button').forEach((e) => e.addEventListener('click', (a) => a.preventDefault()))
-                document.querySelectorAll('form').forEach((e) => e.addEventListener('submit', (a) => a.preventDefault()))
-                document.querySelectorAll('input, select, textarea').forEach((e) => e.setAttribute('disabled', true))
-            }
-        </script>
         ${pageContent}
+        <script type="text/javascript">
+            document.querySelectorAll('a,button').forEach((e) => e.addEventListener('click', (a) => a.preventDefault()))
+            document.querySelectorAll('form').forEach((e) => e.addEventListener('submit', (a) => a.preventDefault()))
+            document.querySelectorAll('input, select, textarea').forEach((e) => e.setAttribute('disabled', true))
+        </script>
         <script type="text/javascript">
             document.querySelectorAll('.taojaa-editor-label,.taojaa-editor-wrapper').forEach(el => {
                 el.addEventListener('click', (t) => {
@@ -55,8 +53,48 @@ exports.editorMode = (pageContent) => {
                         type: t.target.getAttribute('data-type'),
                         name: t.target.getAttribute('data-name')
                     }
-                    window.parent.postMessage(message, "${process.env.EDITOR_URL}");
+                    window.parent.postMessage(message, "${process.env.TAOJAA_EDITOR_URL}");
                 })
+            });
+        </script>
+        <script type="text/javascript">
+            window.addEventListener("message", (e) => {
+
+                const data = e.data;
+                if (data.action === 'taojaa:section:select') {
+                    document.querySelector('[data-name="' + data.target + '"]').scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                        inline: "center"
+                    });
+                    return;
+                }
+
+                if (data.action === 'taojaa:section:update') {
+                    document.querySelector('[data-name="' + data.target + '"] > .taojaa-editor-inner-content').innerHTML = data.content;
+                    return;
+                }
+
+                if (data.action === 'taojaa:template:update') {
+                    document.querySelector('[data-type="template"]').outerHTML = data.content;
+                    return;
+                }
+
+                const event = new Event(data.action, { bubbles: true });
+                document.dispatchEvent(event);
+            });
+
+
+            document.addEventListener('taojaa:section:disable-inspector', () => {
+                document.querySelectorAll('.taojaa-editor-wrapper').forEach((e) => {
+                    e.classList.add('no-inspector')
+                });
+            });
+
+            document.addEventListener('taojaa:section:enable-inspector', () => {
+                document.querySelectorAll('.taojaa-editor-wrapper').forEach((e) => {
+                    e.classList.remove('no-inspector')
+                });
             });
         </script>
         </section>
