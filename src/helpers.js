@@ -465,7 +465,7 @@ exports.registerCustomHelpers = (data) => {
                 break;
                 
             case "reset-password":
-                form = `<form form-id="reset_form" action="/account/reset-password/${params.id}/${params.token}" method="POST" ${props}>`;
+                form = `<form form-id="reset_form" action="/account/reset-password/${data.params.id}/${data.params.token}" method="POST" ${props}>`;
                 break;
 
             default:
