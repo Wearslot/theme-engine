@@ -134,12 +134,15 @@ exports.registerCustomHelpers = (data) => {
      */
     Handlebars.registerHelper('widget', function (options) {
 
-        if (!options.hash.name || !options.hash.widget) {
-            return "Name and widget parameters are required for widgets";
+        if (!options.hash.name) {
+            return "Widget name is required.";
         }
 
-        if (typeof options.hash.widget !== 'object')
-            return `Invalid widget ${widget}.`;
+        var targetedWidget = data.section.widgets[options.hash.name];
+
+        if (!targetedWidget) {
+            return `Widget ${options.hash.name} does not exist.`;
+        }
 
         var variable = 'widget';
         if (options.hash.as !== undefined) {
@@ -152,7 +155,7 @@ exports.registerCustomHelpers = (data) => {
         });
 
         if (process.env.THEME_EDITOR_MODE) {
-            var widget = Handlebars.compile(widgetEditorMode(result, options.hash.name, options.hash.widget));
+            var widget = Handlebars.compile(widgetEditorMode(result, options.hash.name, targetedWidget));
             result = widget({ ...data, ...this });
         }
 
@@ -463,7 +466,7 @@ exports.registerCustomHelpers = (data) => {
             case "forgot-password":
                 form = `<form form-id="password_form" action="/account/forgot-password" method="POST" ${props}>`;
                 break;
-                
+
             case "reset-password":
                 form = `<form form-id="reset_form" action="/account/reset-password/${data.params.id}/${data.params.token}" method="POST" ${props}>`;
                 break;

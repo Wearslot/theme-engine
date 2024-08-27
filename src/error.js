@@ -1,4 +1,4 @@
-exports.errorPageBuild = process.env.NODE_ENV === 'development'
+exports.errorPageBuild = process.env.APP_ENV === 'development'
     ?
     `<!DOCTYPE html>
     <html lang="en">
