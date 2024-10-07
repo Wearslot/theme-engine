@@ -4,6 +4,23 @@ const { registerCustomHelpers } = require('./helpers');
 const { sectionEditorMode, editorMode } = require('./editor');
 const { errorPageBuild } = require('./error');
 
+const processTemplateData = (settings) => {
+    for (const key in settings) {
+        if (Object.prototype.hasOwnProperty.call(settings, key)) {
+            var setting = settings[key];
+            if (typeof setting === 'object') {
+                if (setting.hasOwnProperty('type') && setting.hasOwnProperty('default')) {
+                    settings[key] = setting.value || setting.default;
+                } else {
+                    settings[key] = processTemplateData(setting);
+                }
+            }
+        }
+    }
+
+    return settings;
+}
+
 
 exports.loadTemplate = (template, data) => {
     try {
@@ -12,7 +29,7 @@ exports.loadTemplate = (template, data) => {
 
         const templateSettings = JSON.parse(fs.readFileSync(`${base_path}templates/${template}.json`, 'utf8'));
 
-        return this.loadTemplateContent(templateSettings, data, template, base_path);
+        return this.loadTemplateContent(processTemplateData(templateSettings), data, template, base_path);
 
     } catch (error) {
         var errorResponse = Handlebars.compile(errorPageBuild);
@@ -84,4 +101,8 @@ exports.loadComponent = (name, data) => {
     const template = Handlebars.compile(component);
 
     return template(data);
+}
+
+module.exports = {
+    processTemplateData
 }
