@@ -102,7 +102,3 @@ exports.loadComponent = (name, data) => {
 
     return template(data);
 }
-
-module.exports = {
-    processTemplateData
-}
