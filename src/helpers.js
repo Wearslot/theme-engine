@@ -68,11 +68,11 @@ exports.registerCustomHelpers = (data) => {
 
                     groupContents += template({
                         ...this,
+                        ...groupedSectionData,
                         section,
                         section_id: key,
                         section_name: sectionSettings.order[key],
                         group_name: name,
-                        ...groupedSectionData
                     });
                 }
             } else {
@@ -134,6 +134,8 @@ exports.registerCustomHelpers = (data) => {
      */
     Handlebars.registerHelper('widget', function (options) {
 
+        var data = {...data, ...this};
+
         if (!options.hash.name) {
             return "Widget name is required.";
         }
@@ -150,13 +152,13 @@ exports.registerCustomHelpers = (data) => {
         }
 
         var result = options.fn({
-            [variable]: options.hash.widget,
+            [variable]: targetedWidget,
             ...data
         });
 
         if (process.env.THEME_EDITOR_MODE) {
             var widget = Handlebars.compile(widgetEditorMode(result, options.hash.name, targetedWidget));
-            result = widget({ ...data, ...this });
+            result = widget(data);
         }
 
         return result;
