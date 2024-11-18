@@ -109,7 +109,6 @@ exports.editorMode = (pageContent) => {
 exports.groupEditorMode = (content, group) => {
     return `
         <section class="taojaa-editor-wrapper" data-type="group" data-name="${group}">
-            <span class="taojaa-editor-label" data-type="group" data-name="${group}">{{clean '${group}'}}</span>
             <section class="taojaa-editor-inner-content">${content}</section>
         </section>
     `;
