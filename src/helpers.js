@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Handlebars = require('handlebars');
-const { sectionEditorMode, widgetEditorMode } = require('./editor');
+const { sectionEditorMode, widgetEditorMode, groupEditorMode } = require('./editor');
 
 
 exports.registerCustomHelpers = (data) => {
@@ -78,6 +78,10 @@ exports.registerCustomHelpers = (data) => {
             } else {
                 throw new Error(`Section ${sectionSettings.order[key]} not found in ${process.env.THEME_BASE_PATH}sections/${name}.json`);
             }
+        }
+
+        if (process.env.THEME_EDITOR_MODE) {
+            groupContents = groupEditorMode(groupContents, name);
         }
 
         var template = Handlebars.compile(groupContents);

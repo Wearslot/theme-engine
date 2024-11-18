@@ -75,6 +75,11 @@ exports.editorMode = (pageContent) => {
                     return;
                 }
 
+                if (data.action === 'taojaa:group:update') {
+                    document.querySelector('[data-type="group"][data-name="' + data.target + '"] > .taojaa-editor-inner-content').innerHTML = data.content;
+                    return;
+                }
+
                 if (data.action === 'taojaa:template:update') {
                     document.querySelector('[data-type="template"]').outerHTML = data.content;
                     return;
@@ -97,6 +102,15 @@ exports.editorMode = (pageContent) => {
                 });
             });
         </script>
+        </section>
+    `;
+}
+
+exports.groupEditorMode = (content, group) => {
+    return `
+        <section class="taojaa-editor-wrapper" data-type="group" data-name="${group}">
+            <span class="taojaa-editor-label" data-type="group" data-name="${group}">{{clean '${group}'}}</span>
+            <section class="taojaa-editor-inner-content">${content}</section>
         </section>
     `;
 }
