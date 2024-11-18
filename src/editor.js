@@ -2,7 +2,8 @@ exports.editorMode = (pageContent) => {
     return `
         <section data-type="template">
         <style type="text/css">
-            .taojaa-editor-wrapper {
+            .taojaa-editor-wrapper, 
+            .taojaa-group-wrapper {
                 position:relative;
                 overflow: visible;
                 display: block;
@@ -108,7 +109,7 @@ exports.editorMode = (pageContent) => {
 
 exports.groupEditorMode = (content, group) => {
     return `
-        <section class="taojaa-editor-wrapper" data-type="group" data-name="${group}">
+        <section class="taojaa-group-wrapper" data-type="group" data-name="${group}">
             <section class="taojaa-editor-inner-content">${content}</section>
         </section>
     `;
