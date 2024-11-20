@@ -47,16 +47,19 @@ exports.editorMode = (pageContent) => {
             document.querySelectorAll('input, select, textarea').forEach((e) => e.setAttribute('disabled', true))
         </script>
         <script type="text/javascript">
-            document.querySelectorAll('.taojaa-editor-label,.taojaa-editor-wrapper').forEach(el => {
-                el.addEventListener('click', (t) => {
-                    var message = {
-                        action: "selected",
-                        type: t.target.getAttribute('data-type'),
-                        name: t.target.getAttribute('data-name')
-                    }
-                    window.parent.postMessage(message, "${process.env.TAOJAA_EDITOR_URL}");
-                })
-            });
+            function bindClickerEvents() {
+                document.querySelectorAll('.taojaa-editor-label,.taojaa-editor-wrapper').forEach(el => {
+                    el.addEventListener('click', (t) => {
+                        var message = {
+                            action: "selected",
+                            type: t.target.getAttribute('data-mode') || t.target.getAttribute('data-type'),
+                            name: t.target.getAttribute('data-name')
+                        }
+                        window.parent.postMessage(message, "${process.env.TAOJAA_EDITOR_URL}");
+                    })
+                });
+            }
+            bindClickerEvents();
         </script>
         <script type="text/javascript">
             window.addEventListener("message", (e) => {
@@ -68,26 +71,26 @@ exports.editorMode = (pageContent) => {
                         block: "center",
                         inline: "center"
                     });
-                    return;
                 }
 
-                if (data.action === 'taojaa:section:update') {
-                    document.querySelector('[data-name="' + data.target + '"] > .taojaa-editor-inner-content').innerHTML = data.content;
-                    return;
+                else if (data.action === 'taojaa:section:update') {
+                    document.querySelector('[data-type="section"][data-name="' + data.target + '"]').outerHTML = data.content;
                 }
 
-                if (data.action === 'taojaa:group:update') {
-                    document.querySelector('[data-type="group"][data-name="' + data.target + '"] > .taojaa-editor-inner-content').innerHTML = data.content;
-                    return;
+                else if (data.action === 'taojaa:group:update') {
+                    document.querySelector('[data-type="group"][data-name="' + data.target + '"]').outerHTML = data.content;
                 }
 
-                if (data.action === 'taojaa:template:update') {
+                else if (data.action === 'taojaa:template:update') {
                     document.querySelector('[data-type="template"]').outerHTML = data.content;
-                    return;
+                } 
+
+                else {
+                    const event = new Event(data.action, { bubbles: true });
+                    document.dispatchEvent(event);
                 }
 
-                const event = new Event(data.action, { bubbles: true });
-                document.dispatchEvent(event);
+                bindClickerEvents();
             });
 
 
@@ -118,7 +121,7 @@ exports.groupEditorMode = (content, group) => {
 exports.sectionEditorMode = (content) => {
     return `
         <section class="taojaa-editor-wrapper" data-type="section" data-name="{{#if group_name}}{{group_name}}--{{/if}}{{section_name}}" settings="{{json section}}">
-            <span class="taojaa-editor-label" data-type="section" data-name="{{#if group_name}}{{group_name}}--{{/if}}{{section_name}}">{{clean section_name}}</span>
+            <span class="taojaa-editor-label" data-mode="section" data-name="{{#if group_name}}{{group_name}}--{{/if}}{{section_name}}">{{clean section_name}}</span>
             <section class="taojaa-editor-inner-content">${content}</section>
         </section>
     `;
@@ -127,7 +130,7 @@ exports.sectionEditorMode = (content) => {
 exports.widgetEditorMode = (content, name, widget) => {
     return `
         <section class="taojaa-editor-wrapper" data-type="widget" data-name="{{#if group_name}}{{group_name}}--{{/if}}{{section_name}}--${name}" settings="${JSON.stringify(widget)}">
-            <span class="taojaa-editor-label" data-type="widget" data-name="{{#if group_name}}{{group_name}}--{{/if}}{{section_name}}--${name}">{{clean '${name}'}}</span>
+            <span class="taojaa-editor-label" data-mode="widget" data-name="{{#if group_name}}{{group_name}}--{{/if}}{{section_name}}--${name}">{{clean '${name}'}}</span>
             <section class="taojaa-editor-inner-content">${content}</section>
         </section>
     `;
