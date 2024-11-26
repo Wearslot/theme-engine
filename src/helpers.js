@@ -113,7 +113,7 @@ exports.registerCustomHelpers = (data) => {
 
             var widgetResult = options.fn({
                 [variable]: widget,
-                ...data
+                ...data, ...this
             });
 
             if (process.env.THEME_EDITOR_MODE) {
@@ -138,16 +138,27 @@ exports.registerCustomHelpers = (data) => {
      */
     Handlebars.registerHelper('widget', function (options) {
 
-        var data = {...data, ...this};
+        var data = { ...data, ...this };
 
         if (!options.hash.name) {
-            return "Widget name is required.";
+            throw new Error(`Widget name is required in section ${data.section_name}`);
+        }
+
+        if (!data.section.widgets.hasOwnProperty(options.hash.name)) {
+            return "";
         }
 
         var targetedWidget = data.section.widgets[options.hash.name];
 
-        if (!targetedWidget) {
-            return `Widget ${options.hash.name} does not exist.`;
+        if (targetedWidget?.type) {
+            switch (targetedWidget.type) {
+                case "navigation":
+                    targetedWidget.navigation = data.store.navigations[targetedWidget.handle];
+                    break;
+
+                default:
+                    break;
+            }
         }
 
         var variable = 'widget';
@@ -307,7 +318,7 @@ exports.registerCustomHelpers = (data) => {
 
             result += options.fn({
                 [variable]: item,
-                index: i, ...data
+                index: i, ...data, ...this
             });
 
             i++;
@@ -372,7 +383,7 @@ exports.registerCustomHelpers = (data) => {
             return options.inverse(this);
         }
 
-        return options.fn({ ...data, item: search });
+        return options.fn({ ...data, ...this, item: search });
     })
 
     /**
@@ -481,7 +492,7 @@ exports.registerCustomHelpers = (data) => {
                 break;
         }
 
-        return `${form}${options.fn({ ...data })}</form>`;
+        return `${form}${options.fn({ ...data, ...this })}</form>`;
     });
 
 
