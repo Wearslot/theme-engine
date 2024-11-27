@@ -22,12 +22,10 @@ const processTemplateData = (settings) => {
 }
 
 
-exports.loadTemplate = (template, data) => {
+exports.loadTemplate = (templateSettings, data) => {
     try {
 
         var base_path = process.env.THEME_BASE_PATH;
-
-        const templateSettings = JSON.parse(fs.readFileSync(`${base_path}templates/${template}.json`, 'utf8'));
 
         return this.loadTemplateContent(processTemplateData(templateSettings), data, template, base_path);
 
