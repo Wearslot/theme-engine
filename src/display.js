@@ -22,12 +22,12 @@ const processTemplateData = (settings) => {
 }
 
 
-exports.loadTemplate = (templateSettings, data) => {
+exports.loadTemplate = (name, settings, data) => {
     try {
 
         var base_path = process.env.THEME_BASE_PATH;
 
-        return this.loadTemplateContent(processTemplateData(templateSettings), data, template, base_path);
+        return this.loadTemplateContent(processTemplateData(settings), data, name, base_path);
 
     } catch (error) {
         var errorResponse = Handlebars.compile(errorPageBuild);
@@ -36,27 +36,27 @@ exports.loadTemplate = (templateSettings, data) => {
 }
 
 
-exports.loadTemplateContent = (templateSettings, data, template, base_path) => {
+exports.loadTemplateContent = (settings, data, name, base_path) => {
 
     registerCustomHelpers(data);
 
     var templateContents = '';
 
-    for (const key in templateSettings.order) {
-        if (Object.hasOwnProperty.call(templateSettings.sections, templateSettings.order[key])) {
-            const section = templateSettings.sections[templateSettings.order[key]];
+    for (const key in settings.order) {
+        if (Object.hasOwnProperty.call(settings.sections, settings.order[key])) {
+            const section = settings.sections[settings.order[key]];
 
             var partialContent = fs.readFileSync(`${base_path}sections/${section.type}.html`, 'utf8');
 
             const sectionData = {
                 ...data,
                 section,
-                section_name: templateSettings.order[key],
+                section_name: settings.order[key],
             };
 
             templateContents += this.compileSection(sectionData, partialContent);
         } else {
-            throw new Error(`Section ${templateSettings.order[key]} not found in ${base_path}template/${template}.json`);
+            throw new Error(`Section ${settings.order[key]} not found in template/${name}.json`);
         }
     }
 
@@ -64,9 +64,9 @@ exports.loadTemplateContent = (templateSettings, data, template, base_path) => {
         templateContents = editorMode(templateContents);
     }
 
-    if (templateSettings.layout) {
+    if (settings.layout) {
 
-        var layoutContent = fs.readFileSync(`${base_path}layouts/${templateSettings.layout}.html`, 'utf8');
+        var layoutContent = fs.readFileSync(`${base_path}layouts/${settings.layout}.html`, 'utf8');
         var layoutTemplate = Handlebars.compile(layoutContent);
 
         templateContents = layoutTemplate({
