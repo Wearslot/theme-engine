@@ -2,6 +2,9 @@ const fs = require('fs');
 const Handlebars = require('handlebars');
 const { sectionEditorMode, widgetEditorMode, groupEditorMode } = require('./editor');
 
+const errorDisplay = (message) => {
+    return process.env.APP_ENV === 'development' ? message : '';
+}
 
 exports.registerCustomHelpers = (data) => {
 
@@ -141,11 +144,11 @@ exports.registerCustomHelpers = (data) => {
         var data = { ...data, ...this };
 
         if (!options.hash.name) {
-            throw new Error(`Widget name is required in section ${data.section_name}`);
+            return errorDisplay(`Widget name is required in section ${data.section_name}`);
         }
 
-        if (!data.section.widgets.hasOwnProperty(options.hash.name)) {
-            return "";
+        if (!data.section.widgets || !data.section?.widgets?.hasOwnProperty(options.hash.name)) {
+            return errorDisplay(`No widget named ${option.hash.name} in ${data.section_name}`);
         }
 
         var targetedWidget = data.section.widgets[options.hash.name];
@@ -260,7 +263,7 @@ exports.registerCustomHelpers = (data) => {
     Handlebars.registerHelper('includes', function (collection, item, options) {
 
         if (typeof collection !== 'object' && !Array.isArray(collection)) {
-            return (`Invalid list value ${collection} on includes.`);
+            return errorDisplay(`Invalid list value ${collection} on includes.`);
         }
 
         if (collection.data !== undefined) {
@@ -288,7 +291,7 @@ exports.registerCustomHelpers = (data) => {
     Handlebars.registerHelper('iterate', function (collection, options) {
 
         if (typeof collection !== 'object' && !Array.isArray(collection)) {
-            return `Invalid array|list value ${collection} on iterate.`;
+            return errorDisplay(`Invalid array or list value ${collection} on iterate.`);
         }
 
         var ItemsList = collection;
@@ -341,6 +344,18 @@ exports.registerCustomHelpers = (data) => {
      */
     Handlebars.registerHelper("pagination", function (pagination, options) {
 
+        var result = `<a href="${pagination.page > 1 ? `?page=${(pagination.page - 1)}` : '#'}">${options.hash.previous}</a>`;
+        var limit = options.hash.limit || 5;
+        var index = 0;
+        while (index < limit) {
+
+            result += options.fn({ ...data, ...this, page: (pagination.page + index), index: (index + 1), limit });
+
+            index++;
+        }
+
+        result += `<a href="${pagination.page == pagination.pages ? '#' : `?page=${(pagination.page + 1)}`}">${options.hash.next}</a>`
+        return result;
     });
 
     /**
@@ -351,7 +366,7 @@ exports.registerCustomHelpers = (data) => {
      */
     Handlebars.registerHelper('item', function (list, index) {
         if (!Array.isArray(list)) {
-            return (`Invalid array|list value ${list} on item.`);
+            return errorDisplay(`Invalid array or list value ${list} on item.`);
         }
         return list[index];
     });
@@ -588,6 +603,14 @@ exports.registerCustomHelpers = (data) => {
 
     Handlebars.registerHelper('clean', function (text) {
         return text.split(/[\s-_]+/).map(n => n.charAt(0).toUpperCase() + n.substring(1, n.length)).join(' ');
+    });
+
+    Handlebars.registerHelper('lowercase', function (text) {
+        return text.toLowerCase();
+    });
+
+    Handlebars.registerHelper('uppercase', function (text) {
+        return text.toUpperCase();
     });
 }
 
