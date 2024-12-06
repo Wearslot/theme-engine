@@ -289,44 +289,37 @@ exports.registerCustomHelpers = (data) => {
      * use `index` or `current.index` if the collection is a list of object 
      */
     Handlebars.registerHelper('iterate', function (collection, options) {
-
         if (typeof collection !== 'object' && !Array.isArray(collection)) {
             return errorDisplay(`Invalid array or list value ${collection} on iterate.`);
         }
-
-        var ItemsList = collection;
-
+    
+        let ItemsList = collection;
+    
         if (collection.data !== undefined) {
             ItemsList = collection.data;
         }
-
-        var limit = collection.length;
-        if (typeof options.hash.limit !== 'undefined') {
-            limit = options.hash.limit;
-        }
-
-        let result = ''
-
-        var variable = 'current';
-        if (options.hash.as !== undefined) {
-            variable = options.hash.as;
-        }
-
-        let i = 0;
-        for (var key in ItemsList) {
-            item = ItemsList[key];
+    
+        const limit = typeof options?.hash?.limit !== 'undefined' ? options.hash.limit : collection.length;
+        const variable = options?.hash?.as || 'current';
+    
+        let result = '';
+    
+        // Iterate over the collection
+        Object.keys(ItemsList).forEach((key, i) => {
+            if (i >= limit) return;
+    
+            const item = ItemsList[key];
             if (typeof item === 'object') {
                 item['index'] = i;
             }
-
+    
             result += options.fn({
+                ...this,
                 [variable]: item,
-                index: i, ...data, ...this
+                index: i,
             });
-
-            i++;
-        }
-
+        });
+    
         return result;
     });
 
