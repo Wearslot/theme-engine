@@ -292,34 +292,34 @@ exports.registerCustomHelpers = (data) => {
         if (typeof collection !== 'object' && !Array.isArray(collection)) {
             return errorDisplay(`Invalid array or list value ${collection} on iterate.`);
         }
-    
+
         let ItemsList = collection;
-    
+
         if (collection.data !== undefined) {
             ItemsList = collection.data;
         }
-    
+
         const limit = typeof options?.hash?.limit !== 'undefined' ? options.hash.limit : collection.length;
         const variable = options?.hash?.as || 'current';
-    
+
         let result = '';
-    
+
         // Iterate over the collection
         Object.keys(ItemsList).forEach((key, i) => {
             if (i >= limit) return;
-    
+
             const item = ItemsList[key];
             if (typeof item === 'object') {
                 item['index'] = i;
             }
-    
+
             result += options.fn({
                 ...this,
                 [variable]: item,
                 index: i,
             });
         });
-    
+
         return result;
     });
 
@@ -464,7 +464,7 @@ exports.registerCustomHelpers = (data) => {
                 break;
 
             case "review":
-                form = `<form form-id="review_form" action="/review/add" method="POST" ${props}> 
+                form = `<form form-id="product_review_form" action="/review/add" method="POST" ${props}> 
                             <input type="hidden" name="product_id" value="${options.hash.product.id}">`
                 break;
 
@@ -481,19 +481,35 @@ exports.registerCustomHelpers = (data) => {
                 break;
 
             case "login":
-                form = `<form form-id="login_form" action="/account/login" method="POST" ${props}>`;
+                form = `<form form-id="login_account_form" action="/account/login" method="POST" ${props}>`;
                 break;
 
             case "register":
-                form = `<form form-id="register_form" action="/account/register" method="POST" ${props}>`;
+                form = `<form form-id="register_account_form" action="/account/register" method="POST" ${props}>`;
                 break;
 
             case "forgot-password":
-                form = `<form form-id="password_form" action="/account/forgot-password" method="POST" ${props}>`;
+                form = `<form form-id="forgot_password_form" action="/account/forgot-password" method="POST" ${props}>`;
                 break;
 
             case "reset-password":
-                form = `<form form-id="reset_form" action="/account/reset-password/${data.params.id}/${data.params.token}" method="POST" ${props}>`;
+                form = `<form form-id="reset_password_form" action="/account/reset-password/${data.params.id}/${data.params.token}" method="POST" ${props}>`;
+                break;
+
+            case "add-address":
+                form = `<form form-id="customer_address_add_form" action="/customer/address/add" method="POST" ${props}>`;
+                break;
+
+            case "update-address":
+                form = `<form form-id="customer_address_update_form" action="/customer/address/${options.hash.address.id}" method="POST" ${props}>`;
+                break;
+
+            case "delete-address":
+                form = `<form form-id="customer_address_delete_form" action="/customer/address/${options.hash.address.id}/delete" method="POST" ${props}>`;
+                break;
+
+            case "update-order":
+                form = `<form form-id="customer_order_update_form" action="/customer/order/${options.hash.order.order_no}" method="POST" ${props}>`;
                 break;
 
             default:
