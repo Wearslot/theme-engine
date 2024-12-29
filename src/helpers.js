@@ -52,34 +52,39 @@ exports.registerCustomHelpers = (data) => {
 
         const groupedSectionData = { ...data, ...options.hash };
 
-        const sectionSettings = JSON.parse(fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${name}.json`, 'utf8'));
+        let groupContents = '';
+        let sectionSettings = JSON.parse(fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${name}.json`, 'utf8'));
 
-        var groupContents = '';
+        if (process.env.THEME_EDITOR_MODE && data[name] !== undefined) {
+            sectionSettings = data[name];
+        }
 
-        for (const key in sectionSettings.order) {
-            if (Object.hasOwnProperty.call(sectionSettings.sections, sectionSettings.order[key])) {
-                const section = sectionSettings.sections[sectionSettings.order[key]];
-
-                if (section.settings?.show !== false) {
-                    var partialContent = fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${section.type}.html`, 'utf8');
-
-                    if (process.env.THEME_EDITOR_MODE) {
-                        partialContent = sectionEditorMode(partialContent);
+        if(sectionSettings) {
+            for (const key in sectionSettings.order) {
+                if (Object.hasOwnProperty.call(sectionSettings.sections, sectionSettings.order[key])) {
+                    const section = sectionSettings.sections[sectionSettings.order[key]];
+    
+                    if (section.settings?.show !== false) {
+                        var partialContent = fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${section.type}.html`, 'utf8');
+    
+                        if (process.env.THEME_EDITOR_MODE) {
+                            partialContent = sectionEditorMode(partialContent);
+                        }
+    
+                        var template = Handlebars.compile(partialContent);
+    
+                        groupContents += template({
+                            ...this,
+                            ...groupedSectionData,
+                            section,
+                            section_id: key,
+                            section_name: sectionSettings.order[key],
+                            group_name: name,
+                        });
                     }
-
-                    var template = Handlebars.compile(partialContent);
-
-                    groupContents += template({
-                        ...this,
-                        ...groupedSectionData,
-                        section,
-                        section_id: key,
-                        section_name: sectionSettings.order[key],
-                        group_name: name,
-                    });
+                } else {
+                    throw new Error(`Section ${sectionSettings.order[key]} not found in ${process.env.THEME_BASE_PATH}sections/${name}.json`);
                 }
-            } else {
-                throw new Error(`Section ${sectionSettings.order[key]} not found in ${process.env.THEME_BASE_PATH}sections/${name}.json`);
             }
         }
 

@@ -1,6 +1,5 @@
 exports.editorMode = (pageContent) => {
     return `
-        <section data-type="template">
         <style type="text/css">
             .taojaa-editor-wrapper, 
             .taojaa-group-wrapper {
@@ -42,14 +41,42 @@ exports.editorMode = (pageContent) => {
         </style>
         ${pageContent}
         <script type="text/javascript">
-            document.querySelectorAll('a,button').forEach((e) => e.addEventListener('click', (a) => a.preventDefault()))
-            document.querySelectorAll('form').forEach((e) => e.addEventListener('submit', (a) => a.preventDefault()))
-            document.querySelectorAll('input, select, textarea').forEach((e) => e.setAttribute('disabled', true))
-        </script>
-        <script type="text/javascript">
             function bindClickerEvents() {
+                document.querySelectorAll('a, form').forEach((e) => { 
+                    var attr = e.getAttribute('href') ? 'href' : 'action';
+                    var surfix = window.location.href.split('?');
+
+                    if(!e.hasAttribute(attr)) return;
+
+                    let url;
+                    let value = e.getAttribute(attr);
+                    
+                    if(e.getAttribute(attr).indexOf('?') > -1) {
+                        url = e.getAttribute(attr) + '&' + surfix[1]
+                    } else {
+                        url = e.getAttribute(attr) + '?' + surfix[1]
+                    }
+
+                    if((value.indexOf('key=') > -1 && value.indexOf('theme_id=') > -1 && value.indexOf('editor_mode=') > -1) || (value.indexOf('theme_id=') > -1 && value.indexOf('editor_mode=') > -1)) return;
+
+                    if(attr === 'href') {
+                        e.addEventListener('click', (a) => {
+                            a.preventDefault();
+                            a.stopPropagation();
+                            window.location.assign(url);
+                            window.parent.postMessage({
+                                action: "page_changed",
+                                path: e.getAttribute('href')
+                            }, "${process.env.TAOJAA_EDITOR_URL}");
+                        })
+                    } else {
+                        e.setAttribute(attr, url);
+                    }
+                });
+        
                 document.querySelectorAll('.taojaa-editor-label,.taojaa-editor-wrapper').forEach(el => {
                     el.addEventListener('click', (t) => {
+                        t.stopPropagation();
                         var message = {
                             action: "selected",
                             type: t.target.getAttribute('data-mode') || t.target.getAttribute('data-type'),
@@ -59,11 +86,11 @@ exports.editorMode = (pageContent) => {
                     })
                 });
             }
+
             bindClickerEvents();
         </script>
         <script type="text/javascript">
             window.addEventListener("message", (e) => {
-
                 const data = e.data;
                 if (data.action === 'taojaa:section:select') {
                     document.querySelector('[data-name="' + data.target + '"]').scrollIntoView({
@@ -75,22 +102,30 @@ exports.editorMode = (pageContent) => {
 
                 else if (data.action === 'taojaa:section:update') {
                     document.querySelector('[data-type="section"][data-name="' + data.target + '"]').outerHTML = data.content;
+                    bindClickerEvents();
                 }
 
                 else if (data.action === 'taojaa:group:update') {
                     document.querySelector('[data-type="group"][data-name="' + data.target + '"]').outerHTML = data.content;
+                    bindClickerEvents();
                 }
 
                 else if (data.action === 'taojaa:template:update') {
-                    document.querySelector('[data-type="template"]').outerHTML = data.content;
+                    if(data.partial) {
+                        document.querySelector('[data-type="template"]').outerHTML = data.content;
+                    } else {
+                        document.open();
+                        document.write(data.content);
+                        document.close();
+                    }
+
+                    bindClickerEvents();
                 } 
 
                 else {
                     const event = new Event(data.action, { bubbles: true });
                     document.dispatchEvent(event);
                 }
-
-                bindClickerEvents();
             });
 
 
@@ -106,6 +141,50 @@ exports.editorMode = (pageContent) => {
                 });
             });
         </script>
+    `;
+}
+
+exports.previewMode = (pageContent) => {
+    return `
+        ${pageContent}
+        <script type="text/javascript">
+            function bindClickerEvents() {
+                document.querySelectorAll('a, form').forEach((e) => { 
+                    var attr = e.getAttribute('href') ? 'href' : 'action';
+                    var surfix = window.location.href.split('?');
+
+                    let url;
+                    let value = e.getAttribute(attr);
+
+                    if(!e.hasAttribute(attr)) return;
+
+                    if(e.getAttribute(attr).indexOf('?') > -1) {
+                        url = e.getAttribute(attr) + '&' + surfix[1]
+                    } else {
+                        url = e.getAttribute(attr) + '?' + surfix[1]
+                    }
+
+                    if((value.indexOf('key=') > -1 && value.indexOf('theme_id=') > -1) || (value.indexOf('theme_id=') > -1)) return;
+
+                    if(attr === 'href') {
+                        e.addEventListener('click', (a) => {
+                            a.preventDefault();
+                            window.location.assign(url);
+                        })
+                    } else {
+                        e.setAttribute(attr, url);
+                    }
+                });
+            }
+            bindClickerEvents();
+        </script>
+    `;
+}
+
+exports.templateMode = (pageContent) => {
+    return `
+        <section data-type="template">
+            ${pageContent}
         </section>
     `;
 }

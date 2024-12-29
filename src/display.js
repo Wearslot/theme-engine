@@ -1,7 +1,7 @@
 const fs = require('fs');
 const Handlebars = require('handlebars');
 const { registerCustomHelpers } = require('./helpers');
-const { sectionEditorMode, editorMode } = require('./editor');
+const { sectionEditorMode, editorMode, templateMode, previewMode } = require('./editor');
 const { errorPageBuild } = require('./error');
 
 const processTemplateData = (settings) => {
@@ -27,7 +27,26 @@ exports.loadTemplate = (name, settings, data) => {
 
         var base_path = process.env.THEME_BASE_PATH;
 
-        return this.loadTemplateContent(processTemplateData(settings), data, name, base_path);
+        var templateContents = this.loadTemplateContent(processTemplateData(settings), data, name, base_path);
+        if (process.env.THEME_EDITOR_MODE) {
+            templateContents = editorMode(templateContents);
+        } else if(process.env.THEME_PREVIEW_MODE) {
+            templateContents = previewMode(templateContents);
+        }
+
+        if (settings.layout) {
+
+            var layoutContent = fs.readFileSync(`${base_path}layouts/${settings.layout}.html`, 'utf8');
+            var layoutTemplate = Handlebars.compile(layoutContent);
+    
+            templateContents = layoutTemplate({
+                ...data,
+                layout: false,
+                content: templateContents
+            })
+        }
+
+        return templateContents;
 
     } catch (error) {
         var errorResponse = Handlebars.compile(errorPageBuild);
@@ -61,19 +80,7 @@ exports.loadTemplateContent = (settings, data, name, base_path) => {
     }
 
     if (process.env.THEME_EDITOR_MODE) {
-        templateContents = editorMode(templateContents);
-    }
-
-    if (settings.layout) {
-
-        var layoutContent = fs.readFileSync(`${base_path}layouts/${settings.layout}.html`, 'utf8');
-        var layoutTemplate = Handlebars.compile(layoutContent);
-
-        templateContents = layoutTemplate({
-            ...data,
-            layout: false,
-            content: templateContents
-        })
+        templateContents = templateMode(templateContents);
     }
 
     return templateContents;
