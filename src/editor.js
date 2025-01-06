@@ -87,7 +87,7 @@ exports.editorMode = (pageContent) => {
                 });
             }
 
-            bindClickerEvents();
+            window.onload = () => bindClickerEvents();
         </script>
         <script type="text/javascript">
             window.addEventListener("message", (e) => {
@@ -113,13 +113,12 @@ exports.editorMode = (pageContent) => {
                 else if (data.action === 'taojaa:template:update') {
                     if(data.partial) {
                         document.querySelector('[data-type="template"]').outerHTML = data.content;
+                        bindClickerEvents();
                     } else {
                         document.open();
                         document.write(data.content);
                         document.close();
                     }
-
-                    bindClickerEvents();
                 } 
 
                 else {
