@@ -59,20 +59,20 @@ exports.registerCustomHelpers = (data) => {
             sectionSettings = data[name];
         }
 
-        if(sectionSettings) {
+        if (sectionSettings) {
             for (const key in sectionSettings.order) {
                 if (Object.hasOwnProperty.call(sectionSettings.sections, sectionSettings.order[key])) {
                     const section = sectionSettings.sections[sectionSettings.order[key]];
-    
+
                     if (section.settings?.show !== false) {
                         var partialContent = fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${section.type}.html`, 'utf8');
-    
+
                         if (process.env.THEME_EDITOR_MODE) {
                             partialContent = sectionEditorMode(partialContent);
                         }
-    
+
                         var template = Handlebars.compile(partialContent);
-    
+
                         groupContents += template({
                             ...this,
                             ...groupedSectionData,
@@ -345,13 +345,32 @@ exports.registerCustomHelpers = (data) => {
         var result = `<a href="${pagination.page > 1 ? `?page=${(pagination.page - 1)}` : '#'}">${options.hash.previous}</a>`;
         var limit = options.hash.limit || 5;
         var index = 0;
+
+        var buttons = '';
+
+        if (pagination.page >= limit && pagination.pages > limit) {
+            buttons += options.hash.collapse ? options.hash.collapse : `<span class="pagination-collapse">...</span>`;
+        }
+
         while (index < limit) {
+            
+            let = page = (1 + index);
+            if (pagination.page >= limit) {
+                page = ((pagination.page - limit + 1) + index);
+            }
 
-            result += options.fn({ ...data, ...this, page: (pagination.page + index), index: (index + 1), limit });
-
+            buttons += options.fn({ ...data, ...this, page, index: (index + 1), limit });
+            
+            if(pagination.pages == page) break;
+            
             index++;
         }
 
+        if (pagination.pages > page) {
+            buttons += options.hash.collapse ? options.hash.collapse : `<span class="pagination-collapse">...</span>`;
+        }
+
+        result += buttons;
         result += `<a href="${pagination.page == pagination.pages ? '#' : `?page=${(pagination.page + 1)}`}">${options.hash.next}</a>`
         return result;
     });
