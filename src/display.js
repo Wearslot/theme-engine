@@ -36,7 +36,7 @@ exports.loadTemplate = (name, settings, data) => {
 
         if (settings.layout) {
 
-            var layoutContent = fs.readFileSync(`${base_path}layouts/${settings.layout}.html`, 'utf8');
+            var layoutContent = fs.readFileSync(`${base_path}layouts/${settings.layout}.handlebars`, 'utf8');
             var layoutTemplate = Handlebars.compile(layoutContent);
     
             templateContents = layoutTemplate({
@@ -65,7 +65,7 @@ exports.loadTemplateContent = (settings, data, name, base_path) => {
         if (Object.hasOwnProperty.call(settings.sections, settings.order[key])) {
             const section = settings.sections[settings.order[key]];
 
-            var partialContent = fs.readFileSync(`${base_path}sections/${section.type}.html`, 'utf8');
+            var partialContent = fs.readFileSync(`${base_path}sections/${section.type}.handlebars`, 'utf8');
 
             const sectionData = {
                 ...data,
@@ -102,7 +102,7 @@ exports.loadComponent = (name, data) => {
 
     registerCustomHelpers(data);
 
-    const component = fs.readFileSync(`${process.env.THEME_BASE_PATH}components/${name}.html`, 'utf8');
+    const component = fs.readFileSync(`${process.env.THEME_BASE_PATH}components/${name}.handlebars`, 'utf8');
     const template = Handlebars.compile(component);
 
     return template(data);

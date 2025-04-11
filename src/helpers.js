@@ -20,7 +20,7 @@ exports.registerCustomHelpers = (data) => {
 
         const sectionData = { ...data, ...options.hash };
 
-        const component = fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${name}.html`, 'utf8');
+        const component = fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${name}.handlebars`, 'utf8');
         const template = Handlebars.compile(component);
 
         return template({ ...this, ...sectionData });
@@ -36,7 +36,7 @@ exports.registerCustomHelpers = (data) => {
     Handlebars.registerHelper('component', function (name, options) {
 
         const componentData = { ...data, ...options.hash };
-        const component = fs.readFileSync(`${process.env.THEME_BASE_PATH}components/${name}.html`, 'utf8');
+        const component = fs.readFileSync(`${process.env.THEME_BASE_PATH}components/${name}.handlebars`, 'utf8');
         const template = Handlebars.compile(component);
 
         return template({ ...this, ...componentData });
@@ -65,7 +65,7 @@ exports.registerCustomHelpers = (data) => {
                     const section = sectionSettings.sections[sectionSettings.order[key]];
 
                     if (section.settings?.show !== false) {
-                        var partialContent = fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${section.type}.html`, 'utf8');
+                        var partialContent = fs.readFileSync(`${process.env.THEME_BASE_PATH}sections/${section.type}.handlebars`, 'utf8');
 
                         if (process.env.THEME_EDITOR_MODE) {
                             partialContent = sectionEditorMode(partialContent);
