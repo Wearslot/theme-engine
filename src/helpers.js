@@ -622,7 +622,7 @@ exports.registerCustomHelpers = (data) => {
             style: 'decimal',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-            currency: data.currency.symbol
+            currency: data.currency.code
         }).format(amount);
     });
 
@@ -635,7 +635,7 @@ exports.registerCustomHelpers = (data) => {
             style: 'decimal',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-            currency: data.currency.symbol
+            currency: data.currency.code
         }).format(product.price);
 
         if (product.actual_price != product.price) {
@@ -643,7 +643,7 @@ exports.registerCustomHelpers = (data) => {
                 style: 'decimal',
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
-                currency: data.currency.symbol
+                currency: data.currency.code
             }).format(product.actual_price);
 
             price += `<strike style="margin-left:10px;">${actual_price}</strike>`
