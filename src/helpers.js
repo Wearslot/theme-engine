@@ -353,16 +353,16 @@ exports.registerCustomHelpers = (data) => {
         }
 
         while (index < limit) {
-            
+
             let = page = (1 + index);
             if (pagination.page >= limit) {
                 page = ((pagination.page - limit + 1) + index);
             }
 
             buttons += options.fn({ ...data, ...this, page, index: (index + 1), limit });
-            
-            if(pagination.pages == page) break;
-            
+
+            if (pagination.pages == page) break;
+
             index++;
         }
 
@@ -543,7 +543,6 @@ exports.registerCustomHelpers = (data) => {
         return `${form}${options.fn({ ...data, ...this })}</form>`;
     });
 
-
     Handlebars.registerHelper('country_select_field', function (props, options) {
         var result = '';
 
@@ -595,6 +594,21 @@ exports.registerCustomHelpers = (data) => {
     });
     // end form helpers
 
+
+    /**
+     * To help declara variables in view files
+     * 
+     * @params `varName` <string> - the name of the variable
+     * @params `varValue` <string> - the value of the variable
+     */
+    Handlebars.registerHelper('assign', function (varName, varValue, options) {
+        if (!options.data.root) options.data.root = {};
+        options.data.root[varName] = varValue;
+    });
+
+
+    // Others
+
     Handlebars.registerHelper('styles', function (options) {
         return `<style type="text/css">${options.fn({ ...data })}</style>`;
     });
@@ -604,8 +618,12 @@ exports.registerCustomHelpers = (data) => {
     });
 
     Handlebars.registerHelper('money', function (amount) {
-        amount = String(amount).indexOf('.') > -1 ? amount : Number(amount).toFixed(2);
-        return data.currency.symbol + amount;
+        return new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            currency: data.currency.symbol
+        }).format(amount);
     });
 
     Handlebars.registerHelper('percentage', function (value) {
@@ -613,10 +631,22 @@ exports.registerCustomHelpers = (data) => {
     });
 
     Handlebars.registerHelper('product_price', function (product) {
-        var price = data.currency.symbol + product.price;
+        var price = new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            currency: data.currency.symbol
+        }).format(product.price);
 
         if (product.actual_price != product.price) {
-            price += `<strike style="margin-left:10px;">${data.currency.symbol + product.actual_price}</strike>`
+            const actual_price = new Intl.NumberFormat('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                currency: data.currency.symbol
+            }).format(product.actual_price);
+
+            price += `<strike style="margin-left:10px;">${actual_price}</strike>`
         }
 
         return price;
@@ -631,7 +661,10 @@ exports.registerCustomHelpers = (data) => {
     })
 
     Handlebars.registerHelper('json', function (data) {
-        return JSON.stringify(data);
+        let json = JSON.stringify(data);
+        json = JSON.parse(json.replaceAll('&quot;', '"'));
+
+        return json;
     });
 
     Handlebars.registerHelper('clean', function (text) {
