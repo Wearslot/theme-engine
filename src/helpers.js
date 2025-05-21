@@ -618,8 +618,8 @@ exports.registerCustomHelpers = (data) => {
     });
 
     Handlebars.registerHelper('money', function (amount) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
+        return data.currency.symbol + new Intl.NumberFormat('en-US', {
+            style: 'decimal',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
             currency: data.currency.code
@@ -631,16 +631,16 @@ exports.registerCustomHelpers = (data) => {
     });
 
     Handlebars.registerHelper('product_price', function (product) {
-        var price = new Intl.NumberFormat('en-US', {
-            style: 'currency',
+        var price = data.currency.symbol + new Intl.NumberFormat('en-US', {
+            style: 'decimal',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
             currency: data.currency.code
         }).format(product.price);
 
         if (product.actual_price != product.price) {
-            const actual_price = new Intl.NumberFormat('en-US', {
-                style: 'currency',
+            const actual_price = data.currency.symbol + new Intl.NumberFormat('en-US', {
+                style: 'decimal',
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
                 currency: data.currency.code
