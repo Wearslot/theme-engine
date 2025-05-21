@@ -661,10 +661,19 @@ exports.registerCustomHelpers = (data) => {
     })
 
     Handlebars.registerHelper('json', function (data) {
-        let json = JSON.stringify(data);
-        json = JSON.parse(json.replaceAll('&quot;', '"'));
+        try {
 
-        return json;
+            if (!data) {
+                return errorDisplay(`Invalid json object: ${data}`);
+            }
+
+            let json = JSON.stringify(data);
+            json = JSON.parse(json.replaceAll('&quot;', '"'));
+
+            return json;
+        } catch (error) {
+            return errorDisplay(error)
+        }
     });
 
     Handlebars.registerHelper('clean', function (text) {
