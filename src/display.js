@@ -30,7 +30,7 @@ exports.loadTemplate = (name, settings, data) => {
         var templateContents = this.loadTemplateContent(processTemplateData(settings), data, name, base_path);
         if (process.env.THEME_EDITOR_MODE) {
             templateContents = editorMode(templateContents);
-        } else if(process.env.THEME_PREVIEW_MODE) {
+        } else if (process.env.THEME_PREVIEW_MODE) {
             templateContents = previewMode(templateContents);
         }
 
@@ -38,7 +38,7 @@ exports.loadTemplate = (name, settings, data) => {
 
             var layoutContent = fs.readFileSync(`${base_path}layouts/${settings.layout}.handlebars`, 'utf8');
             var layoutTemplate = Handlebars.compile(layoutContent);
-    
+
             templateContents = layoutTemplate({
                 ...data,
                 layout: false,
@@ -49,8 +49,7 @@ exports.loadTemplate = (name, settings, data) => {
         return templateContents;
 
     } catch (error) {
-        var errorResponse = Handlebars.compile(errorPageBuild);
-        return errorResponse({ error: error.message, stack: error.stack })
+        throw error;
     }
 }
 
