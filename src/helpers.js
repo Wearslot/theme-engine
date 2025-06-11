@@ -488,7 +488,7 @@ exports.registerCustomHelpers = (data) => {
                 break;
 
             case "review":
-                form = `<form form-id="product_review_form" action="/review/add" method="POST" ${props}> 
+                form = `<form form-id="product_review_form" action="/reviews" method="POST" ${props}> 
                             <input type="hidden" name="product_id" value="${options.hash.product.id}">`
                 break;
 
