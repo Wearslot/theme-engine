@@ -153,7 +153,7 @@ exports.registerCustomHelpers = (data) => {
         }
 
         if (!data.section.widgets || !data.section?.widgets?.hasOwnProperty(options.hash.name)) {
-            return errorDisplay(`No widget named ${option.hash.name} in ${data.section_name}`);
+            return errorDisplay(`No widget named ${options.hash.name} in ${data.section_name}`);
         }
 
         var targetedWidget = data.section.widgets[options.hash.name];
