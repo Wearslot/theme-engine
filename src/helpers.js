@@ -328,6 +328,70 @@ exports.registerCustomHelpers = (data) => {
         return result;
     });
 
+    /**
+     * To perform a case/scenario based flow
+     * 
+     * The switch helper will open a swith block 
+     * @params `value` <string|number>
+     * 
+     * the `case` and default block must be place in between the switch block
+     * 
+     * {{#switch status}}
+     *  {{#case "active"}}
+     *      <p>Status is Active</p>
+     *  {{/case}}
+     *
+     *  {{#case "inactive"}}
+     *      <p>Status is Inactive</p>
+     *  {{/case}}
+     *
+     *  {{#default}}
+     *      <p>Status Unknown</p>
+     *  {{/default}}
+     * {{/switch}}
+     */
+    
+    let switchStack = [];
+
+    Handlebars.registerHelper('switch', function (value, options) {
+        switchStack.push({
+            switchMatched: false,
+            switchValue: value
+        });
+        const html = options.fn({...this, ...data});
+        switchStack.pop();
+        return html;
+    });
+
+    Handlebars.registerHelper('case', function (value, options) {
+        const stack = switchStack[switchStack.length - 1];
+
+        if (!stack) {
+            throw new Error('`case` must be used inside a `switch` block');
+        }
+
+        if (!stack.switchMatched && value === stack.switchValue) {
+            stack.switchMatched = true;
+            return options.fn({...this, ...data});
+        }
+
+        return '';
+    });
+
+    Handlebars.registerHelper('default', function (options) {
+        const stack = switchStack[switchStack.length - 1];
+
+        if (!stack) {
+            throw new Error('`default` must be used inside a `switch` block');
+        }
+
+        if (!stack.switchMatched) {
+            return options.fn({...this, ...data});
+        }
+
+        return '';
+    });
+
 
     /**
      * To render a pagination items
@@ -485,6 +549,10 @@ exports.registerCustomHelpers = (data) => {
             case "product":
                 form = `<form form-id="product_form" action="/cart/add" method="POST" ${props}> 
                             <input type="hidden" name="product_id" value="${options.hash.product.id}">`
+                break;
+
+            case "checkout":
+                form = `<form form-id="checkout_form" action="/checkout" method="POST" ${props}>`
                 break;
 
             case "review":
