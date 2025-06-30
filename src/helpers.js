@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Handlebars = require('handlebars');
 const { sectionEditorMode, widgetEditorMode, groupEditorMode } = require('./editor');
+const { processTemplateData } = require('./display');
 
 const errorDisplay = (message) => {
     return process.env.APP_ENV === 'development' ? message : '';
@@ -60,6 +61,7 @@ exports.registerCustomHelpers = (data) => {
         }
 
         if (sectionSettings) {
+            sectionSettings = processTemplateData(sectionSettings);
             for (const key in sectionSettings.order) {
                 if (Object.hasOwnProperty.call(sectionSettings.sections, sectionSettings.order[key])) {
                     const section = sectionSettings.sections[sectionSettings.order[key]];
@@ -350,7 +352,7 @@ exports.registerCustomHelpers = (data) => {
      *  {{/default}}
      * {{/switch}}
      */
-    
+
     let switchStack = [];
 
     Handlebars.registerHelper('switch', function (value, options) {
@@ -358,7 +360,7 @@ exports.registerCustomHelpers = (data) => {
             switchMatched: false,
             switchValue: value
         });
-        const html = options.fn({...this, ...data});
+        const html = options.fn({ ...this, ...data });
         switchStack.pop();
         return html;
     });
@@ -372,7 +374,7 @@ exports.registerCustomHelpers = (data) => {
 
         if (!stack.switchMatched && value === stack.switchValue) {
             stack.switchMatched = true;
-            return options.fn({...this, ...data});
+            return options.fn({ ...this, ...data });
         }
 
         return '';
@@ -386,7 +388,7 @@ exports.registerCustomHelpers = (data) => {
         }
 
         if (!stack.switchMatched) {
-            return options.fn({...this, ...data});
+            return options.fn({ ...this, ...data });
         }
 
         return '';
