@@ -3,23 +3,7 @@ const Handlebars = require('handlebars');
 const { registerCustomHelpers } = require('./helpers');
 const { sectionEditorMode, editorMode, templateMode, previewMode } = require('./editor');
 const { errorPageBuild } = require('./error');
-
-exports.processTemplateData = (settings) => {
-    for (const key in settings) {
-        if (Object.prototype.hasOwnProperty.call(settings, key)) {
-            var setting = settings[key];
-            if (typeof setting === 'object') {
-                if (setting.hasOwnProperty('type') && (setting.hasOwnProperty('default') || setting.hasOwnProperty('value'))) {
-                    settings[key] = setting.value || setting.default;
-                } else {
-                    settings[key] = this.processTemplateData(setting);
-                }
-            }
-        }
-    }
-
-    return settings;
-}
+const { processTemplateData } = require('./utils');
 
 
 exports.loadTemplate = (name, settings, data) => {
@@ -27,7 +11,7 @@ exports.loadTemplate = (name, settings, data) => {
 
         var base_path = process.env.THEME_BASE_PATH;
 
-        var templateContents = this.loadTemplateContent(this.processTemplateData(settings), data, name, base_path);
+        var templateContents = this.loadTemplateContent(processTemplateData(settings), data, name, base_path);
         if (process.env.THEME_EDITOR_MODE) {
             templateContents = editorMode(templateContents);
         } else if (process.env.THEME_PREVIEW_MODE) {

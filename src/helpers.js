@@ -1,7 +1,7 @@
 const fs = require('fs');
 const Handlebars = require('handlebars');
 const { sectionEditorMode, widgetEditorMode, groupEditorMode } = require('./editor');
-const { processTemplateData } = require('./display');
+const { processTemplateData } = require('./utils');
 
 const errorDisplay = (message) => {
     return process.env.APP_ENV === 'development' ? message : '';
